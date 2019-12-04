@@ -37,6 +37,8 @@ Simply start `main.py` and youll be greated with the menu. Pressing 1 will promp
 
 Highscores can be reset by deleting the `highscores.json` file
 
+Words can be added or removed in the `wordlist.txt` file as this is where the program generates the words from
+
 ## Built With
 
 * [JSON](https://docs.python.org/3/library/json.html) - Used to open and edit JSON files
