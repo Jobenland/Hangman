@@ -1,9 +1,25 @@
+#!/usr/bin/env python
+
+'''
+Simple hangman game with highscore feature for INST 126 Final Project
+'''
+
+__author__ = "Jonathan Obenland and Andrew Knox"
+__copyright__ = None
+__credits__ = ["Jonathan Obenland","Andrew Knox"]
+__license__ = "GPL"
+__version__ = "1.0.0"
+__maintainer__ = "Jonathan Obenland and Andrew Knox"
+__email__ = "jobenland1@gmail.com, amknox5@gmail.com"
+__status__ = "Production"
+
+#imports
 import time
 import json
 from random import randint
 
 
-
+#main menu for the program
 def welcome():
 
     print("Welcome to Hangman")
@@ -12,8 +28,12 @@ def welcome():
     print("--------------\n")
     print("1 >>>> Start Game")
     print("2 >>>> High Score\n")
+
+    #makes call to the option menu
     menu()
 
+#main selection portion for the main menu
+#keeps on running in case someone selected a wrong option
 def menu():
 
     while True:
@@ -48,15 +68,23 @@ def gameStart():
 
     for letter in word:
         blanks.append('_ ')
-    print("".join(blanks))
 
     name = input("Enter your Name: ")
-    print("The timer has started! start guessing!")
+    print('')
+    print("".join(blanks))
+    print('\n')
+    print("Game starts in 3")
+    time.sleep(1)
+    print("Game starts in 2")
+    time.sleep(1)
+    print("Game starts in 1")
+    time.sleep(1)
+    print("GO! The timer has started! start guessing!")
 
     start_time = time.time()
 
     while True:
-        if attempt == 10:
+        if attempt == 20:
             finalTime = round(time.time()-start_time,5)
             print("GAME OVER! you attempted 10 times")
             print("The correct word was", word)
@@ -97,19 +125,11 @@ def gameStart():
             highScores(score)
             break
 
-
-        
-
-
-
-    #score={}
-    #time = 57
-    #attempts = 77
-    #scoreName = input("Congrats!, Enter your name: ")
-    #score[scoreName] = {'time' : time, 'attempts' : attempts}
-    #highScores(score)
+#this function will add the user high score to the JSON file 
 def highScores(score):
-    #Jonathan
+    
+    #this will open the file and read the dictionary in as list to add the score
+    #this is necessary otherwise data coming in would overwrite existing data
     try:
         with open ("highscores.json") as f:
             data = json.load(f)
@@ -121,20 +141,26 @@ def highScores(score):
         with open ("highscores.json","w") as f:
             json.dump(data, f)
 
+    #if the file isnt found and it is the first time playing, it will create a new file and add the player to it
     except FileNotFoundError:
         print("Since this is your first time playing, a high score file has been created for you")
 
         with open ("highscores.json",'w') as f:
             json.dump(score, f)
 
+#this function will find the highscore of the already existing highscore JSON list
 def findHighScores():
     try:
+
+        #reads the json object into memory
         highscorestime = []
         highplayer = []
         with open('highscores.json',"r",encoding="utf8") as json_file:
             data = json_file.read() 
-        obj = json.loads(data)1
+        obj = json.loads(data)
 
+        #adds the time to an array and finds the MIN
+        #as that would be the "highest score"
         for player in range(len(obj)):
             time = obj[player]['time']
             highscorestime.append(time)
@@ -142,12 +168,11 @@ def findHighScores():
             highplayer.append(player)
 
         #print(highplayer[(highscorestime.index(min(highscorestime)))])
-        print((highplayer[(highscorestime.index(min(highscorestime)))]),"won with a time of",min(highscorestime))
+        print((highplayer[(highscorestime.index(min(highscorestime)))]),"------",min(highscorestime),"seconds")
+
+    #if user has no games yet, it will print this placeholder
     except FileNotFoundError:
         print("You have no highscore games yet, Start the game to autogenerate the high score file")
 
-
-
-
-
+#>>start the program
 welcome()
