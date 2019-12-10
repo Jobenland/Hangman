@@ -33,7 +33,7 @@ To ensure that all modules are loaded and everything is working. Launch the prog
 
 ## Running the program
 
-Simply start `main.py` and youll be greated with the menu. Pressing 1 will prompt a new game to start where the user will enter their name and have 3 seconds until the timer starts and they can start guessing. If the User wins, their highscore will be added to the JSON file. Furthermore, Pressing option 2 will allow the user to see the name and time of the current record 
+Simply start `main.py` and youll be greeted with the menu. Pressing 1 will prompt a new game to start where the user will enter their name and have 3 seconds until the timer starts and they can start guessing. If the User wins, their highscore will be added to the JSON file. Furthermore, Pressing option 2 will allow the user to see the name and time of the current record 
 
 Highscores can be reset by deleting the `highscores.json` file
 
