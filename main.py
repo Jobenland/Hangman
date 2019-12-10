@@ -17,6 +17,7 @@ __status__ = "Production"
 import time
 import json
 from random import randint
+import random
 
 
 #main menu for the program
@@ -49,81 +50,86 @@ def menu():
 
 def gameStart():
     
-    score = {}
+    #Andrew
+    #needs to store...
+    #   attempts
+    #   time
+    #   num Incorrect
+    #   prompt for name
+    #   word
+    #   print letters already guessed
 
-    attempt = 0
+    attempts = 0
+    num_incorrect = 0
+    limit = 10
+    wordlist = []
+    display = []
+    letters_guessed = []
 
-    f = open('wordlist.txt','r')
-    data_list = f.readlines()
-    f.close()
+    with open('wordlist.txt') as fh:
+        for line in fh:
+            wordlist.append(line.rstrip('\n'))
+        fh.close()
 
-    data_list = [word.strip() for word in data_list]
+    word = random.choice(wordlist)
 
-    wordLoc = randint(0,49)
-
-    word = data_list[wordLoc]
-
-    blanks = []
-    guesses = []
-
-    for letter in word:
-        blanks.append('_ ')
-
-    name = input("Enter your Name: ")
-    print('')
-    print("".join(blanks))
-    print('\n')
-    print("Game starts in 3")
-    time.sleep(1)
-    print("Game starts in 2")
-    time.sleep(1)
-    print("Game starts in 1")
-    time.sleep(1)
-    print("GO! The timer has started! start guessing!")
-
+    for i in range(0,len(word)):
+        display.append('_ ')
+    
+    name = input('Enter you name: ')
+    print('The game starts now! Start guessing!')
     start_time = time.time()
+            
 
-    while True:
-        if attempt == 20:
-            finalTime = round(time.time()-start_time,5)
-            print("GAME OVER! you attempted 10 times")
-            print("The correct word was", word)
-            print("your total time was", finalTime,"seconds")
-            break
+    while num_incorrect < limit:
         
-        print("This is attempt number",attempt+1)
-        print("You have guessed",guesses)
-        guess = input("Guess a letter: ")
-        print('')
-        guesses.append(guess)
-        attempt+=1
-        
-        if len(guess)==1:
-            for letter in range(len(word)):
-                if guess == word[letter]:
-                    blanks[letter] = guess + " "
-            print(''.join(blanks))
-            print('')
-
-        elif len(guess)>1:
-            if guess == word:
-                finalTime = round(time.time()-start_time,5)
-                print("YOU WIN!")
-                print("your total time was", finalTime,"seconds")
-                passRound = True
-                score = {'name': name,'time' : finalTime, 'attempts' : attempt, 'word' : word, 'pass' : passRound}
-                highScores(score)
-                break
-                
-        checkwin = (''.join(blanks).replace(' ',''))
-        if checkwin == word:
-            finalTime = round(time.time()-start_time,5)
-            print("YOU WIN!")
-            print("your total time was", finalTime,"seconds")
-            passRound = True
-            score = {'name' : name, 'time' : finalTime, 'attempts' : attempt, 'word' : word, 'pass' : passRound}
+        if '_ ' not in display:
+            final_time = time.time() - start_time
+            print('Correct! You finished with ' + str(attempts) + ' attempts with ' + str(num_incorrect) + ' of them being incorrect in ' + str(final_time) + ' seconds.')
+            score = {'name' : name, 'time' : final_time, 'attempts' : attempts, 'word' : word, 'pass' : True}
             highScores(score)
             break
+
+        print('This is attempt number ' + str(attempts))
+        print('The letters you have guessed are ', letters_guessed)
+        print(''.join(display))
+
+        guess = input('Guess the word or a letter: ')
+
+        if len(guess) == 0:
+            print('You did not make a guess! Try again!')
+
+        elif len(guess) > 1:
+            if guess == word:
+                attempts += 1
+                final_time = time.time() - start_time
+                print("Correct! You finished with " + str(attempts) + " attempts with " + str(num_incorrect) + " of them being incorrect in " + str(time.time() - start_time) + " seconds.")
+                score = {'name' : name, 'time' : final_time, 'attempts' : attempts, 'word' : word, 'pass' : True}
+                highScores(score)
+                break
+            else:
+                num_incorrect += 1
+                attempts += 1
+                print("Incorrect! You have " + str(limit - num_incorrect) + " attempts left.")
+        elif len(guess) == 1:
+            if guess.lower() in letters_guessed:
+                    print('You already guessed ' + str(guess) + '! Try again!')
+            elif guess.lower() in word:
+                attempts += 1
+                letters_guessed.append(guess)
+                for letter in range(0,len(word)):
+                    if guess == word[letter]:
+                        display[letter] = guess + ' '
+                print(''.join(display))
+            else:
+                attempts += 1
+                letters_guessed.append(guess)
+                num_incorrect += 1
+
+    if num_incorrect >= limit:
+        print('GAME OVER! You got too many wrong!')
+        print('The correct word was ' + word + '.')
+        print('Your total time was ' + str(time.time() - start_time) + ' seconds.')
 
 #this function will add the user high score to the JSON file 
 def highScores(score):
@@ -134,8 +140,7 @@ def highScores(score):
         with open ("highscores.json") as f:
             data = json.load(f)
 
-        if type(data) is dict:
-            data = [data]
+        if type(score) is dict:
             data.append(score)
 
         with open ("highscores.json","w") as f:
@@ -145,9 +150,12 @@ def highScores(score):
     except FileNotFoundError:
         print("Since this is your first time playing, a high score file has been created for you")
 
-        with open ("highscores.json",'w') as f:
-            json.dump(score, f)
+        if type(score) is dict:
+            data = [score]
 
+        with open ("highscores.json",'w') as f:
+            json.dump(data, f)
+    
 #this function will find the highscore of the already existing highscore JSON list
 def findHighScores():
     try:
